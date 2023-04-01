@@ -87,7 +87,7 @@ contract CBDC is Ownable, IERC20 {
         RetailUser retailUser = new RetailUser(
                                         _name,
                                         name,
-                                        msg.sender,
+                                        address(this),
                                         currency
                                     );
         primaryRetailUsers[_name] = address(retailUser);
