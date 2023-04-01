@@ -16,7 +16,7 @@ contract ERC20 is Ownable, IERC20 {
 
 }
 
-Contract CentralBank
+// Contract CentralBank
 //     extension of ERC20 or self coded
 //     Attributes
 //         Name
