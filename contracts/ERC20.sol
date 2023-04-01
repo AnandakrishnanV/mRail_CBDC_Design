@@ -71,6 +71,18 @@ contract ERC20 is Ownable, IERC20 {
         return true;
     }
 
+    function burnFrom(address _from,uint256 _amount) external returns (bool) {
+        require(_from != address(0), 'ERC20: from address is not valid');
+        require(_balances[_from] >= _amount, 'ERC20: insufficient balance');
+        require(_amount <= _allowed[_from][msg.sender], 'ERC20: burn from value not allowed');
+        
+        _allowed[_from][msg.sender] = _allowed[_from][msg.sender] - _amount;
+        _balances[_from] = _balances[_from] - _amount;
+        totalSupply = totalSupply - _amount;
+
+        return true;
+    }
+
 
 }
 
