@@ -29,6 +29,14 @@
     - Function to request other central bank to add an address as secondary user
     - Function to add an address as secondary user
       - Need method to check if sender is also a Central Bank
+        - Use a Bank of Banks for this
+    - Address to Top Dawg
+- Bank of Banks
+  - Top Dawg, but useless
+  - Can spawn Central Banks
+  - Contains a mapping for Central Banks to access the contract
+  - function to get all Central Banks
+  - function to get address and return central bank name or None
         
 
 
