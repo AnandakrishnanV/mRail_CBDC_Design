@@ -28,6 +28,7 @@
     - Function to check balances in other central banks
     - Function to request other central bank to add an address as secondary user
     - Function to add an address as secondary user
+      - Need method to check if sender is also a Central Bank
         
 
 
