@@ -114,12 +114,24 @@ contract CentralBank is Ownable, IERC20 {
         return true;
     }
 
+    function internal_currency_transfer_allowed(
+        address addr
+    ) internal view returns (uint8) {
+        uint8 status = primaryUserStatus[addr];
+        if (status == 0) {
+            status = secondaryUserStatus[addr];
+        }
+        return status;
+    }
+
     function transfer(
         address _to,
         uint256 _value
     ) external override returns (bool) {
         require(_to != address(0), "ERC20: to address is not valid");
         require(_value <= _balances[msg.sender], "ERC20: insufficient balance");
+        require(internal_currency_transfer_allowed(msg.sender)>0,"sender invalid");
+        require(internal_currency_transfer_allowed(_to)>0,"reciever invalid");
 
         _balances[msg.sender] = _balances[msg.sender] - _value;
         _balances[_to] = _balances[_to] + _value;
@@ -169,31 +181,33 @@ contract CentralBank is Ownable, IERC20 {
     }
 
     function requestAccessToNewCurrency(
-        string memory _currency
+        string memory _currency,
+        string memory _user_data
     ) external returns (address) {
         //check if primary user
         require(primaryUserStatus[msg.sender]>0,"Sender Invalid Status");
-        require(condition);
-
+        require(internal_users_all_currency_status[_currency]>0,"Currency status invalid");
+        CentralBank tempAccess = CentralBank(currency_to_addresses[_currency]);
+        address foreign_address = tempAccess.CreateSecondaryUser(currency, name, _user_data, msg.sender);
 
         return foreign_address;
     }
 
     function CreateSecondaryUser (
-        string memory _currency,
-        string memory _country,
+        string memory _source_currency,
+        string memory _source_country,
         string memory _user_data,
         address _user_addr
     ) public returns (address) {
-        address foreign_country_addr_check = find_currency_address(_currency);
+        address foreign_country_addr_check = find_currency_address(_source_currency);
         require(msg.sender == foreign_country_addr_check, "BAD REQUEST");
 
-        require(foreign_country_internal_restrictions[_country]>0,"Not allowed to create user");
+        require(foreign_country_internal_restrictions[_source_country]>0,"Not allowed to create user");
 
-        secondaryUserAddresses[_country][secondaryUserCountryUsers[_country]] = _user_addr;
-        secondaryUserCountryUsers[_country] += 1;
+        secondaryUserAddresses[_source_country][secondaryUserCountryUsers[_source_country]] = _user_addr;
+        secondaryUserCountryUsers[_source_country] += 1;
         secondaryUserData[_user_addr] = _user_data;
-        secondaryUserStatus[_user_addr] = foreign_country_internal_restrictions[_country];
+        secondaryUserStatus[_user_addr] = foreign_country_internal_restrictions[_source_country];
 
         return address(this);
     }
@@ -269,7 +283,7 @@ contract RetailUser is Ownable {
         string memory _new_currency
     ) public onlyOwner returns (bool) {       
         CentralBank tempAcces = CentralBank(CreatorAddress);
-        address new_currency_address = tempAcces.requestAccessToNewCurrency(_new_currency);
+        address new_currency_address = tempAcces.requestAccessToNewCurrency(_new_currency, name);
         require(new_currency_address != address(0), "New currency addition failed");
         CBDCAddresses[_new_currency] = new_currency_address;
         HeldCurrencies.push(_new_currency);
