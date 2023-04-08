@@ -23,7 +23,10 @@ contract CentralBank is Ownable, IERC20 {
 
     // Status is a number to indicate strength of access - will be decided on 
     // and used for txn implementation
-    mapping(string => uint8) internal all_currency_status;
+    // Used to decide your counries restrictions on other currencies
+    mapping(string => uint8) internal internal_users_all_currency_status;
+
+    mapping(string => uint8) internal foreign_country_internal_restrictions;
 
     // Stores balances of each currency type held by the CB, including their own
     mapping(address => uint256) internal _balances;
@@ -35,6 +38,8 @@ contract CentralBank is Ownable, IERC20 {
     mapping(address => uint8) internal primaryUserStatus;
 
     // Details of Secondary Users i.e. users from other countries
+    // country because foregin bank only makes ties with COuntry not the currency it holds
+    // i.e Japan India not Japan INR
     mapping(string => uint256) internal secondaryUserCountryUsers;
     mapping(string => mapping(uint256 => address)) secondaryUserAddresses;
     mapping(address => string) secondaryUserData;
@@ -53,7 +58,7 @@ contract CentralBank is Ownable, IERC20 {
         totalSupply = _totalSupply;
         currency_to_addresses[currency] = address(this);
         
-        all_currency_status[_currency] = 99;
+        internal_users_all_currency_status[_currency] = 99;
 
         primaryNumUsers = 1;
         primaryUserStatus[address(this)] = 99;
@@ -83,18 +88,29 @@ contract CentralBank is Ownable, IERC20 {
             ans = tempAccess.request_address(_currency);
             require(ans != address(0), "No address found for the given key");
             currency_to_addresses[_currency] = ans;
-            all_currency_status[_currency] = 0;
+            internal_users_all_currency_status[_currency] = 0;
         }
         require(ans != address(0), "No address found for the given key");
         return ans;
     }
 
-    function change_currency_status(
+    function change_internal_users_all_currency_status(
         string memory _currency,
         uint8 _newStatus
     ) external onlyOwner returns (bool) {
-        // Setting Indias status with Japan. Japan can have a different status with Ind
-        all_currency_status[_currency] = _newStatus;
+        // Setting INR status for your primary users
+        address ans = find_currency_address(_currency);
+        require(ans != address(0),"Bank address not found");
+        internal_users_all_currency_status[_currency] = _newStatus;
+        return true;
+    }
+
+    function change_foreign_country_internal_restrictions_status(
+        string memory _country,
+        uint8 _newStatus
+    ) external onlyOwner returns (bool) {
+        // Setting What Indians using JPY face
+        foreign_country_internal_restrictions[_country] = _newStatus;
         return true;
     }
 
@@ -152,7 +168,36 @@ contract CentralBank is Ownable, IERC20 {
         return temp;
     }
 
-    // function user_request_currency_access
+    function requestAccessToNewCurrency(
+        string memory _currency
+    ) external returns (address) {
+        //check if primary user
+        require(primaryUserStatus[msg.sender]>0,"Sender Invalid Status");
+        require(condition);
+
+
+        return foreign_address;
+    }
+
+    function CreateSecondaryUser (
+        string memory _currency,
+        string memory _country,
+        string memory _user_data,
+        address _user_addr
+    ) public returns (address) {
+        address foreign_country_addr_check = find_currency_address(_currency);
+        require(msg.sender == foreign_country_addr_check, "BAD REQUEST");
+
+        require(foreign_country_internal_restrictions[_country]>0,"Not allowed to create user");
+
+        secondaryUserAddresses[_country][secondaryUserCountryUsers[_country]] = _user_addr;
+        secondaryUserCountryUsers[_country] += 1;
+        secondaryUserData[_user_addr] = _user_data;
+        secondaryUserStatus[_user_addr] = foreign_country_internal_restrictions[_country];
+
+        return address(this);
+    }
+
 }
 
 contract RetailUser is Ownable {
@@ -218,6 +263,17 @@ contract RetailUser is Ownable {
         }
 
         return result;
+    }
+
+    function requestNewCurrency(
+        string memory _new_currency
+    ) public onlyOwner returns (bool) {       
+        CentralBank tempAcces = CentralBank(CreatorAddress);
+        address new_currency_address = tempAcces.requestAccessToNewCurrency(_new_currency);
+        require(new_currency_address != address(0), "New currency addition failed");
+        CBDCAddresses[_new_currency] = new_currency_address;
+        HeldCurrencies.push(_new_currency);
+        return true;        
     }
 
     function addNewCurrency(
