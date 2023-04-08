@@ -115,9 +115,10 @@ contract RetailUser is Ownable {
         
         for (uint i = 0; i < HeldCurrencies.length; i++) {
             string memory currencyName = HeldCurrencies[i];
-            address currency_addr = CBDCAddresses[currencyName];
-            CBDC tempAcces = CBDC(currency_addr);
-            uint256 balance = tempAcces.balanceOf(address(this));
+            // address currency_addr = CBDCAddresses[currencyName];
+            // CBDC tempAcces = CBDC(currency_addr);
+            // uint256 balance = tempAcces.balanceOf(address(this));
+            uint256 balance = printBalance(currencyName);
             bytes memory balanceBytes = abi.encodePacked(balance);
             bytes memory balanceStringBytes = new bytes(balanceBytes.length);
             for (uint j = 0; j < balanceBytes.length; j++) {
