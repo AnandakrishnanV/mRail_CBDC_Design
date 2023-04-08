@@ -2,39 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-interface IERC20 {
-    function balanceOf(address who) external view returns (uint256);
-    function transfer(address to, uint256 value) external returns (bool);
-    // function allowance(address owner, address spender) external view returns (uint256);
-    // function transferFrom(address from, address to, uint256 value) external returns (bool);
-}
-
-contract Ownable {
-  address public owner;
-
-    event TransferOwnership(address formerOwner, address newOwner);
-
-  constructor(){
-    owner = msg.sender;
-  }
-
-  modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
-  }
-
-
-  function transferOwnership(address _newOwner) public virtual onlyOwner {
-    _transferOwnership(_newOwner);
-  }
-
- 
-  function _transferOwnership(address _newOwner) internal {
-    require(_newOwner != address(0), 'Ownable: address is not valid');
-    owner = _newOwner;
-    emit TransferOwnership(msg.sender, _newOwner);
-  }
-}
+import './interfaces/IERC20.sol';
+import './ownership/Ownable.sol';
 
 contract CBDC is Ownable, IERC20 {
 
@@ -100,9 +69,7 @@ contract CBDC is Ownable, IERC20 {
         address temp = primaryRetailUsers[_name];
         return temp;
     }
-
-
-
+    
 }
 
 contract RetailUser is Ownable {
@@ -168,6 +135,8 @@ contract RetailUser is Ownable {
         return true;
     }
 }
+
+
 
 // Contract CentralBank
 //     extension of ERC20 or self coded
