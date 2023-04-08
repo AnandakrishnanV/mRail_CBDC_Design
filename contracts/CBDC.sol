@@ -14,16 +14,20 @@ contract CentralBank is Ownable, IERC20 {
     uint256 public totalSupply;
 
     address BankOfBanksAddr;
-    mapping (string => address) internal currency_to_addresses;
-    mapping (string => uint8) internal foreign_currency_status;
+    mapping(string => address) internal currency_to_addresses;
+    mapping(string => uint8) internal all_currency_status;
 
     mapping(address => uint256) internal _balances;
-    mapping(address => mapping(address => uint256)) internal _allowed;
 
-    mapping(string => address) internal primaryRetailUsers;
+    mapping(string => address) internal primaryUserAddresses;
+    mapping(uint256 => string) internal primaryUserData;
+    uint256 public primaryNumUsers;
+    mapping(address => uint8) internal primaryUserStatus;
 
-    mapping(uint256 => string) internal UserMapping;
-    uint256 public numUsers;
+    mapping(string => uint256) internal secondaryUserCountryUsers;
+    mapping(string => mapping(uint256 => address)) secondaryUserAddresses;
+    mapping(address => string) secondaryUserData;
+    mapping(address => uint8) secondaryUserStatus;
 
     constructor(
         string memory _name,
@@ -37,12 +41,18 @@ contract CentralBank is Ownable, IERC20 {
         _balances[msg.sender] = _totalSupply;
         totalSupply = _totalSupply;
         currency_to_addresses[currency] = address(this);
-        foreign_currency_status[_currency]=10;
+        
+        all_currency_status[_currency] = 99;
+
+        primaryNumUsers = 1;
+        primaryUserStatus[address(this)] = 99;
+        primaryUserData[0] = _name;
+        primaryUserAddresses[_name] = address(this);
     }
 
     function register_with_BankOfBanks(
         address _BankOfBanksAddr
-    ) external onlyOwner returns (address)  {
+    ) external onlyOwner returns (address) {
         BankOfBanksAddr = _BankOfBanksAddr;
         BankOfBanks tempAccess = BankOfBanks(_BankOfBanksAddr);
 
@@ -62,7 +72,7 @@ contract CentralBank is Ownable, IERC20 {
             ans = tempAccess.request_address(_currency);
             require(ans != address(0), "No address found for the given key");
             currency_to_addresses[_currency] = ans;
-            foreign_currency_status[_currency] = 0;
+            all_currency_status[_currency] = 0;
         }
         require(ans != address(0), "No address found for the given key");
         return ans;
@@ -71,9 +81,9 @@ contract CentralBank is Ownable, IERC20 {
     function change_currency_status(
         string memory _currency,
         uint8 _newStatus
-    ) external onlyOwner returns(bool) {
+    ) external onlyOwner returns (bool) {
         // Setting Indias status with Japan. Japan can have a different status with Ind
-        foreign_currency_status[_currency] = _newStatus;
+        all_currency_status[_currency] = _newStatus;
         return true;
     }
 
@@ -114,16 +124,20 @@ contract CentralBank is Ownable, IERC20 {
             address(this),
             currency
         );
-        primaryRetailUsers[_name] = address(retailUser);
+        primaryUserData[primaryNumUsers] = _name;
+        primaryUserAddresses[_name] = address(retailUser);
+        primaryUserStatus[address(retailUser)] = 9;
+        primaryNumUsers += 1;
+
         retailUser.transferOwnership(_newOwner);
 
         return true;
     }
 
-    function accessUserAddress(
+    function accessPrimaryUserAddress(
         string memory _name
     ) external view onlyOwner returns (address) {
-        address temp = primaryRetailUsers[_name];
+        address temp = primaryUserAddresses[_name];
         return temp;
     }
 
