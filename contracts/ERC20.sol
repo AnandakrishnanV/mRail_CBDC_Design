@@ -112,6 +112,7 @@ contract RetailUser is Ownable {
     string public PrimaryCurrency;
     mapping (string => address) public CBDCAddresses;
     // hold all currencies string[] currencies;
+    string [] public HeldCurrencies;
     // mapping (address => string) public Certificates;
 
     constructor (
@@ -125,6 +126,7 @@ contract RetailUser is Ownable {
         CreatorAddress = _creatorAddr;
         PrimaryCurrency = _primaryCurrency;
         CBDCAddresses[_primaryCurrency] = _creatorAddr;
+        HeldCurrencies.push(_primaryCurrency);
         //hold currencies
         //hold certificates
     }
@@ -139,6 +141,31 @@ contract RetailUser is Ownable {
         address currency_addr = CBDCAddresses[_currency];
         CBDC tempAcces = CBDC(currency_addr);
         return tempAcces.balanceOf(address(this));
+    }
+
+    function printAllBalances() public view returns (string memory) {
+        string memory result = "";
+        
+        for (uint i = 0; i < HeldCurrencies.length; i++) {
+            string memory currencyName = HeldCurrencies[i];
+            address currency_addr = CBDCAddresses[currencyName];
+            CBDC tempAcces = CBDC(currency_addr);
+            uint256 balance = tempAcces.balanceOf(address(this));
+            bytes memory balanceBytes = abi.encodePacked(balance);
+            bytes memory balanceStringBytes = new bytes(balanceBytes.length);
+            for (uint j = 0; j < balanceBytes.length; j++) {
+                balanceStringBytes[j] = bytes1(uint8(balanceBytes[j]) + 48);
+            }
+            result = string(abi.encodePacked(result, currencyName, " balance: ", string(balanceStringBytes), "\n"));
+        }
+
+        return result;
+    }
+
+    function addNewCurrency(string memory _new_currency, address _new_currency_address) public returns (bool){
+        CBDCAddresses[_new_currency] = _new_currency_address;
+        HeldCurrencies.push(_new_currency);
+        return true;
     }
 }
 
