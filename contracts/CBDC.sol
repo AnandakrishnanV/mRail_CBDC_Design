@@ -8,22 +8,33 @@ import "../node_modules/@openzeppelin/contracts/utils/Strings.sol";
 import "./BankOfBanks.sol";
 
 contract CentralBank is Ownable, IERC20 {
+    // Name, Currency tag, No.of decimals and Total Supply of the currency
+    // of the Bank
     string public name;
     string public currency;
     uint8 public decimals;
     uint256 public totalSupply;
 
+    // Stores the address of the controller bank
     address BankOfBanksAddr;
+
+    // Addresses of each foreign currency on the chain
     mapping(string => address) internal currency_to_addresses;
+
+    // Status is a number to indicate strength of access - will be decided on 
+    // and used for txn implementation
     mapping(string => uint8) internal all_currency_status;
 
+    // Stores balances of each currency type held by the CB, including their own
     mapping(address => uint256) internal _balances;
 
+    // Details of Primary Users i.e citizens under the Bank's jurisdiction
     mapping(string => address) internal primaryUserAddresses;
     mapping(uint256 => string) internal primaryUserData;
     uint256 public primaryNumUsers;
     mapping(address => uint8) internal primaryUserStatus;
 
+    // Details of Secondary Users i.e. users from other countries
     mapping(string => uint256) internal secondaryUserCountryUsers;
     mapping(string => mapping(uint256 => address)) secondaryUserAddresses;
     mapping(address => string) secondaryUserData;
