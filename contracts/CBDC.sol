@@ -5,12 +5,17 @@ pragma solidity ^0.8.0;
 import "./interfaces/IERC20.sol";
 import "./ownership/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/utils/Strings.sol";
+import "./BankOfBanks.sol";
 
-contract CBDC is Ownable, IERC20 {
+contract CentralBank is Ownable, IERC20 {
     string public name;
     string public currency;
     uint8 public decimals;
     uint256 public totalSupply;
+
+    address BankOfBanksAddr;
+    mapping (string => address) internal currency_to_addresses;
+    mapping (string => uint8) internal foreign_currency_status;
 
     mapping(address => uint256) internal _balances;
     mapping(address => mapping(address => uint256)) internal _allowed;
@@ -31,6 +36,45 @@ contract CBDC is Ownable, IERC20 {
         decimals = _decimals;
         _balances[msg.sender] = _totalSupply;
         totalSupply = _totalSupply;
+        currency_to_addresses[currency] = address(this);
+        foreign_currency_status[_currency]=10;
+    }
+
+    function register_with_BankOfBanks(
+        address _BankOfBanksAddr
+    ) external onlyOwner returns (address)  {
+        BankOfBanksAddr = _BankOfBanksAddr;
+        BankOfBanks tempAccess = BankOfBanks(_BankOfBanksAddr);
+
+        tempAccess.register_country(name, currency, address(this));
+
+        address tempAddr = tempAccess.request_address(currency);
+
+        return tempAddr;
+    }
+
+    function find_currency_address(
+        string memory _currency
+    ) public returns (address) {
+        address ans = currency_to_addresses[_currency];
+        if (ans == address(0)) {
+            BankOfBanks tempAccess = BankOfBanks(BankOfBanksAddr);
+            ans = tempAccess.request_address(_currency);
+            require(ans != address(0), "No address found for the given key");
+            currency_to_addresses[_currency] = ans;
+            foreign_currency_status[_currency] = 0;
+        }
+        require(ans != address(0), "No address found for the given key");
+        return ans;
+    }
+
+    function change_currency_status(
+        string memory _currency,
+        uint8 _newStatus
+    ) external onlyOwner returns(bool) {
+        // Setting Indias status with Japan. Japan can have a different status with Ind
+        foreign_currency_status[_currency] = _newStatus;
+        return true;
     }
 
     function transfer(
@@ -82,6 +126,8 @@ contract CBDC is Ownable, IERC20 {
         address temp = primaryRetailUsers[_name];
         return temp;
     }
+
+    // function user_request_currency_access
 }
 
 contract RetailUser is Ownable {
@@ -117,7 +163,7 @@ contract RetailUser is Ownable {
         uint256 _value
     ) public {
         address currency_addr = CBDCAddresses[_currency];
-        CBDC tempAcces = CBDC(currency_addr);
+        CentralBank tempAcces = CentralBank(currency_addr);
         tempAcces.transfer(_to, _value);
     }
 
@@ -125,7 +171,7 @@ contract RetailUser is Ownable {
         string memory _currency
     ) public view returns (uint256 balance) {
         address currency_addr = CBDCAddresses[_currency];
-        CBDC tempAcces = CBDC(currency_addr);
+        CentralBank tempAcces = CentralBank(currency_addr);
         return tempAcces.balanceOf(address(this));
     }
 
