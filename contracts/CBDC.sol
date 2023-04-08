@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IERC20.sol";
 import "./ownership/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import "../node_modules/@openzeppelin/contracts/utils/Strings.sol";
 
 contract CBDC is Ownable, IERC20 {
     string public name;
