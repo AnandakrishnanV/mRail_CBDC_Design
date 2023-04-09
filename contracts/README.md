@@ -1,4 +1,30 @@
 # To Do
+- Blacklisting Whitelisting
+  - Functions to Add
+    - Change Foreign Currency Internal CUrrency STatus - Apply to All
+      - Trigger when you need to restrict all foreign users
+        - After setting foreign country internal restrictions, User the secondaryUserCountryUsers mapping, secondaryUserAddresses mapping and secondaryUserStatus mapping with a for loop to set all country users status to new status
+        - will be used by Japan to Block all Indian wallets now and then unlock them in a later date
+    - Change UserStatus
+      - Change user status in primaryUserStatus or Secondary User Status
+        - Used to restrict a particular address
+        - WIll be overwritten by if status for a whole country is changed
+      - Can use same function for both primary and secondary users for now. There are issues though. Mapping will give 0 as status for non-existent address and this means we are currently using 0 for blocked. so if mapping is 0, is it a blocked primary user or a secondary user who has valid status elsewhere.
+    - Request_block_address
+      - India request Japan to block an indians account
+      - Jap check if request is from india and account is indian before blocking
+- Pooling
+  - Will need banks to hold each others currencies. Which is another layer of complexities.
+  - Can have banks as special addresses instead of retail users
+  - Handled by Bank of Banks ? easiest method
+  - Indian wants to exchange INR for JPY.
+    - Requests a central bank - ex INDIA
+      - Central bank checks if it has enough INR and JPY for the exchange. Executes if it has both. else does not
+    - Can have BankOfBanks hold a for loop
+      - Rotate though all banks and request transfer, hopefully 1 bank has both isde balance. exchanges.
+      - Pooling and internal tranferring seems very complicated.
+---
+Done - April 8, 2023
 - Scenario - Indian User wants to trade JPY
   - RetailUser Contacts IndianCBDC. request fro JPY
     - FUNC CALL : IndianUser contacts RBI - want to trade JPY 
