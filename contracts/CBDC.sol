@@ -29,6 +29,7 @@ contract CentralBank is Ownable, IERC20 {
     mapping(string => uint8) internal foreign_country_internal_restrictions;
 
     // Stores balances of each currency type held by the CB, including their own
+    // ???
     mapping(address => uint256) internal _balances;
 
     // Details of Primary Users i.e citizens under the Bank's jurisdiction
@@ -324,15 +325,15 @@ contract RetailUser is Ownable {
         return true;        
     }
 
-    function addNewCurrency(
-        string memory _new_currency,
-        address _new_currency_address
-    ) public returns (bool) {
-        // Call parent CBDC for address of user
-        CBDCAddresses[_new_currency] = _new_currency_address;
-        HeldCurrencies.push(_new_currency);
-        return true;
-    }
+    // function addNewCurrency(
+    //     string memory _new_currency,
+    //     address _new_currency_address
+    // ) public returns (bool) {
+    //     // Call parent CBDC for address of user
+    //     CBDCAddresses[_new_currency] = _new_currency_address;
+    //     HeldCurrencies.push(_new_currency);
+    //     return true;
+    // }
 }
 
 // Contract CentralBank

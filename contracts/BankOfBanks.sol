@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 
 import "./ownership/Ownable.sol";
 
+//Rename to BankRegistry
+
 contract BankOfBanks is Ownable {
     string public name;
 
