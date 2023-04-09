@@ -10,9 +10,9 @@ contract BankOfBanks is Ownable {
     string public name;
 
     string[] public countries;
-    mapping(string => string) country_to_curencies;
-    mapping(string => address) currency_to_addresses;
-    mapping(address => string) address_to_country;
+    mapping(string => string) internal country_to_curencies;
+    mapping(string => address) internal currency_to_addresses;
+    mapping(address => string) internal address_to_country;
 
     constructor(string memory _name) {
         name = _name;
@@ -20,7 +20,7 @@ contract BankOfBanks is Ownable {
 
     function country_addr(
         string memory _name
-    ) external view returns (address countryAddr) {
+    ) public view returns (address countryAddr) {
         return currency_to_addresses[country_to_curencies[_name]];
     }
 
