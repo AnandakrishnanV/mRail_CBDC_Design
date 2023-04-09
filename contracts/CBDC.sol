@@ -108,7 +108,7 @@ contract CentralBank is Ownable, IERC20 {
     function change_foreign_country_internal_restrictions_status(
         string memory _country,
         uint8 _newStatus
-    ) external onlyOwner returns (bool) {
+    ) public onlyOwner returns (bool) {
         // Setting What Indians using JPY face
         foreign_country_internal_restrictions[_country] = _newStatus;
         return true;
@@ -212,6 +212,40 @@ contract CentralBank is Ownable, IERC20 {
         return address(this);
     }
 
+    function change_all_foreign_country_wallet_status (
+        string memory _country,
+        uint8 _newStatus
+    ) public onlyOwner returns (bool) {
+        foreign_country_internal_restrictions[_country] = _newStatus;
+        for (uint256 i = 0; i < secondaryUserCountryUsers[_country]; i++) {
+            secondaryUserStatus[secondaryUserAddresses[_country][i]] = _newStatus;
+        }
+        return true;
+    }
+
+    function change_primary_user_status (
+        address _addr,
+        uint8 _newStatus
+    ) public onlyOwner returns (bool) {
+        // Need to add check for non user
+        // might accidentaly set secondary user as primary user using this
+        // can be mitgated with -1,0,1 scheme in naming values or 
+        // different int schemes
+        primaryUserStatus[_addr] = _newStatus;
+        return true;
+    }
+
+    function change_secondary_user_status (
+        address _addr,
+        uint8 _newStatus
+    ) public onlyOwner returns (bool) {
+        // Need to add check for primary user
+        // might accidentaly set primary user as secondary user using this
+        // can be mitgated with -1,0,1 scheme in naming values or 
+        // different int schemes
+        secondaryUserStatus[_addr] = _newStatus;
+        return true;
+    }
 }
 
 contract RetailUser is Ownable {
