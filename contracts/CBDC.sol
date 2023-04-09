@@ -37,13 +37,15 @@ contract CentralBank is Ownable, IERC20 {
     mapping(uint256 => string) internal primaryUserData;
     uint256 internal primaryNumUsers;
     mapping(address => uint8) internal primaryUserStatus;
+    mapping(address => uint256) internal primaryUserIndex;
 
     // Details of Secondary Users i.e. users from other countries
     // country because foregin bank only makes ties with COuntry not the currency it holds
     // i.e Japan India not Japan INR
     mapping(string => uint256) internal secondaryUserCountryUsers;
     mapping(string => mapping(uint256 => address)) internal secondaryUserAddresses;
-    mapping(address => string) internal secondaryUserData;
+    mapping(address => string) internal secondaryUserData; 
+    // add another mapping for access of data from uint
     mapping(address => uint8) internal secondaryUserStatus;
 
     constructor(
