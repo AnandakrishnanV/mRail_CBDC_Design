@@ -54,4 +54,4 @@ Phase 1 : Full exchange settled by a single bank
 Phase 2 : Exchange by multiple banks coming together
 
 Phase 3 : free mobility of currency between banks to ensure much faster trades | Go through Forex markets |
-|  |  |  |  |  |  |
+
