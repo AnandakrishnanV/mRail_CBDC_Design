@@ -29,7 +29,7 @@
     - Spawner for all its primaryUsers (called RetailUsers)
     - Can view balances of all users of its CBDC
 
-### RetailUser contract - Retail Bank Change Needed. Refer Notion (for authors only)
+### RetailBank contract - Retail Bank Change Needed. Refer Notion (for authors only)
 
 - Holds own details, parent Central Bank details
 - Holds address of other CBDCs (allowed to be used)
